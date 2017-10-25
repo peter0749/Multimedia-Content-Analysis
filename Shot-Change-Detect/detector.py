@@ -72,8 +72,6 @@ class ContentBased(BaseDetector):
         for tid, th in enumerate(thread_queue):
             th.join()
             self.__hsvDiff.append(thread_results[tid])
-        thread_queue = []
-        thread_results = []
         self.__hsvDiff[0] = np.inf ## first frame -> no shot change
     def _post_process(self):
         pass
