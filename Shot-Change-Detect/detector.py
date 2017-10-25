@@ -37,20 +37,43 @@ class ContentBased(BaseDetector):
     def _dist(self, x, y):
         return np.sum(np.minimum(x, y))
     def _pre_process(self):
+        def conv(v, pixn, tid, results):
+            if type(results)!=dict: raise ValueError('please pass dict')
+            hsv = cv2.cvtColor(v, cv2.COLOR_BGR2HSV).reshape(pixn,3)
+            currHist, _ = np.histogramdd(hsv, bins = self.__bin_shape) ## color histogram
+            currHist /= float(pixn) ## normalize
+            results[tid] = currHist
+        def get_dist(tid, lastHist, currHist, results):
+            if type(results)!=dict: raise ValueError('please pass dict')
+            results[tid] = self._dist(currHist, lastHist)
+
+        import threading
+        thread_queue = []
+        thread_results = dict()
         """
         Use the method from PPT p.5
         """
-        lastHist = np.zeros(self.__bin_shape) ## h, s, v, 1D
         pixn = self._frame_shape[0]*self._frame_shape[1]
-        for v in self._videoReader(self._path,scale=self._scale):
-            hsv = cv2.cvtColor(v, cv2.COLOR_BGR2HSV).reshape(pixn,3)
+        for tid, v in enumerate(self._videoReader(self._path,scale=self._scale)):
+            thread_queue.append(threading.Thread(target=conv, args=(v, pixn, tid, thread_results), name='thread-%d'%tid))
+            thread_queue[-1].start()
             ## rgb -> hsv
-            currHist, _ = np.histogramdd(hsv, bins = self.__bin_shape) ## color histogram
-            currHist /= float(pixn) ## normalize
-            self.__hsvHist.append(currHist)
-            histInst = self._dist(currHist, lastHist)
-            self.__hsvDiff.append(histInst)
+        # sync
+        for tid, th in enumerate(thread_queue):
+            th.join()
+            self.__hsvHist.append(thread_results[tid])
+        thread_queue = []
+        thread_results = dict()
+        lastHist = np.zeros(self.__bin_shape) ## h, s, v, 1D
+        for tid, currHist in enumerate(self.__hsvHist):
+            thread_queue.append(threading.Thread(target=get_dist, args=(tid, lastHist, currHist, thread_results), name='thread-%d'%tid))
+            thread_queue[-1].start()
             lastHist = currHist
+        for tid, th in enumerate(thread_queue):
+            th.join()
+            self.__hsvDiff.append(thread_results[tid])
+        thread_queue = []
+        thread_results = []
         self.__hsvDiff[0] = np.inf ## first frame -> no shot change
     def _post_process(self):
         pass
