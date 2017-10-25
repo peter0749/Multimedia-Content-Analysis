@@ -86,7 +86,7 @@ class ContentBased(BaseDetector):
         if self.shot is None: raise Exception('Call run() first!')
         if type(output) != str: raise ValueError('Please pass a string!')
         temp = dict()
-        def select(left, right, cut_n):
+        def select(leftf, rightf, cut_n):
             mid = (leftf+rightf)//2
             temp[mid] = cut_n
             keyf = set([mid]) ## first key frame

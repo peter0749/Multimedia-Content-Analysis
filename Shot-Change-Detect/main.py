@@ -30,7 +30,8 @@ if __name__ == '__main__':
     SCD = detector.ContentBased(directory = args.path, img_type=args.read_type, scale=args.scale)
     if args.bench<=0:
         sc = SCD.run(threshold = args.threshold, min_length = args.min_length)
-        for i in sc: print(i)
+        print('id, frame_n')
+        for i,f in enumerate(sc): print('%d, %d'%(i,f))
         if len(args.keyframe_out)>0:
             SCD.get_keyframe(args.keyframe_threshold, args.keyframe_out)
     else:
