@@ -6,8 +6,8 @@ import benchmark
 parser = argparse.ArgumentParser(description='Simple Shot Change Detection using Python+OpenCV')
 parser.add_argument('path', metavar='file_path', type=str,
                     help='Path to the raw frames')
-parser.add_argument('--method', type=str, default='Content', required=False,
-        help='Method: Edge/Content (default: Content)')
+parser.add_argument('--method', type=str, default='HSV', required=False,
+        help='Method: Edge/HSV/RGB (default: HSV)')
 parser.add_argument('--threshold', type=float, default=0.2, required=False,
         help='Threshold of shot change (range: [0,1) )')
 parser.add_argument('--min_length', type=int, default=12, required=False,
@@ -29,8 +29,10 @@ parser.add_argument('--benchmark_range', action='store_true', default=False,
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    if args.method=='Content':
+    if args.method=='HSV':
         SCD = detector.ContentBased(directory = args.path, img_type=args.read_type, scale=args.scale)
+    elif args.method=='RGB':
+        SCD = detector.RGBBased(directory = args.path, img_type=args.read_type, scale=args.scale)
     else:
         SCD = detector.EdgeBased(directory = args.path, img_type=args.read_type, scale=args.scale)
     if not args.benchmark:
