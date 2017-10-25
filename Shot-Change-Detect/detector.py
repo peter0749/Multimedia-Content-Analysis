@@ -18,6 +18,8 @@ class BaseDetector(object):
         self._frame_shape = t[0].shape
         del t
         self._shot = None
+    def get_frame_num(self):
+        pass
     def _pre_process(self):
         pass
     def _post_process(self):
@@ -34,6 +36,8 @@ class ContentBased(BaseDetector):
         self.__hsvHist = []
         self.__bin_shape = bin_shape
         self._pre_process()
+    def get_frame_num(self):
+        return len(self.__hsvHist)
     def _dist(self, x, y):
         return np.sum(np.minimum(x, y))
     def _pre_process(self):
