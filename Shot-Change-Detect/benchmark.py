@@ -40,7 +40,7 @@ class benchmark_plot_all(object):
         sns.set_style('darkgrid')
         sns.set_context('paper')
         self.scores = [ (self.methods[m].get_score(), m) for m in self.methods ]
-        fig, ax = plt.subplots(dpi=120)
+        fig, ax = plt.subplots(dpi=90)
         colors = []
         for i in xrange(len(self.scores)):
             r,g,b = colorsys.hsv_to_rgb(i/float(len(self.scores)),1,1)
@@ -80,7 +80,7 @@ class benchmark(object):
         self.ap = average_precision_score(self.truth, self.score)
         print('Average Precision: %.2f'%self.ap)
         if plot:
-            fig, ax = plt.subplots(dpi=100)
+            fig, ax = plt.subplots(dpi=90)
             plt.xlim((0,1))
             plt.ylim((0,1))
             ax.step(self.recall, self.precision, color='r', alpha=0.8)
