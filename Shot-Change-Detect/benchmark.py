@@ -35,16 +35,24 @@ class benchmark_plot_all(object):
         from sklearn.metrics import precision_recall_curve, average_precision_score
         import matplotlib.pyplot as plt
         import seaborn as sns
-        sns.set_style('whitegrid')
+        import string
+        import colorsys
+        sns.set_style('darkgrid')
+        sns.set_context('paper')
         self.scores = [ (self.methods[m].get_score(), m) for m in self.methods ]
-        fig, ax = plt.subplots(dpi=100)
-        colors = np.random.choice(256**3, len(self.scores))
+        fig, ax = plt.subplots(dpi=120)
+        colors = []
+        for i in xrange(len(self.scores)):
+            r,g,b = colorsys.hsv_to_rgb(i/float(len(self.scores)),1,1)
+            colors.append((r,g,b))
+        markders = ['_', '-', '--', ':', '-.']
         for c, result in enumerate(self.scores):
-            color = '#{0:06X}'.format(colors[c])
+            color = colors[c]
             score, name = result
             precision, recall, threshold = precision_recall_curve(self.truth, score)
-            ax.step(recall, precision, color=color)
-            ax.text(1.01, 0.95-c*0.1, str(name), fontsize=12, color=color)
+            ax.step(recall, precision, str(markders[c%len(markders)]), color=color)
+
+            ax.text(0.85, 0.95-c*0.05, str(name)+' : \''+str(markders[c%len(markders)])+'\'', fontsize=12, color=color)
         ax.set_xlabel('Recall')
         ax.set_ylabel('Precision')
         plt.show()
