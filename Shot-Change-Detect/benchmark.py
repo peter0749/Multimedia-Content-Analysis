@@ -45,14 +45,13 @@ class benchmark_plot_all(object):
         for i in xrange(len(self.scores)):
             r,g,b = colorsys.hsv_to_rgb(i/float(len(self.scores)),1,1)
             colors.append((r,g,b))
-        markders = ['_', '-', '--', ':', '-.']
         for c, result in enumerate(self.scores):
             color = colors[c]
             score, name = result
             precision, recall, threshold = precision_recall_curve(self.truth, score)
-            ax.step(recall, precision, str(markders[c%len(markders)]), color=color)
+            ax.step(recall, precision, color=color)
 
-            ax.text(0.85, 0.95-c*0.05, str(name)+' : \''+str(markders[c%len(markders)])+'\'', fontsize=12, color=color)
+            ax.text(0.85, 0.95-c*0.05, str(name), fontsize=10, color=color)
         ax.set_xlabel('Recall')
         ax.set_ylabel('Precision')
         plt.show()
