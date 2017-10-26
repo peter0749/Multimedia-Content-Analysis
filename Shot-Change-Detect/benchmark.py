@@ -53,7 +53,7 @@ class benchmark_plot_all(object):
             plt.ylim((0,1))
             ax.step(recall, precision, color=color)
 
-            ax.text(0.85, 0.95-c*0.05, str(name), fontsize=10, color=color)
+            ax.text(1.05, 0.95-c*0.05, str(name), fontsize=10, color=color)
         ax.set_xlabel('Recall')
         ax.set_ylabel('Precision')
         plt.show()
