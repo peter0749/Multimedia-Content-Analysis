@@ -1,7 +1,7 @@
 import sys
 import numpy as np
 
-def gt_parser(path, ac_range=False):
+def gt_parser(path, ac_point=False):
     if type(path)!=str: raise ValueError('not a string')
     with open(path, 'r') as fp:
         gt = []
@@ -9,10 +9,10 @@ def gt_parser(path, ac_range=False):
             cuts = line.split('~')
             try:
                 if len(cuts)>1:
-                    if ac_range:
-                        ds = range(int(cuts[0]), int(cuts[1])+1)
-                    else:
+                    if ac_point:
                         ds = [int(cuts[0]), int(cuts[1])]
+                    else:
+                        ds = range(int(cuts[0]), int(cuts[1])+1)
                     gt.extend(ds)
                 else:
                     d = int(cuts[0])

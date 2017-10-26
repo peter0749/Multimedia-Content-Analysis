@@ -24,7 +24,7 @@ parser.add_argument('--scale', type=float, default=None, required=False,
         help='Subsampling')
 parser.add_argument('--benchmark', action='store_true', default=False,
                     help='')
-parser.add_argument('--benchmark_range', action='store_true', default=False,
+parser.add_argument('--benchmark_hard', action='store_true', default=False,
                     help='')
 
 if __name__ == '__main__':
@@ -42,7 +42,7 @@ if __name__ == '__main__':
         if len(args.keyframe_out)>0:
             SCD.get_keyframe(args.keyframe_threshold, args.keyframe_out)
     else:
-        ground_truth = benchmark.gt_parser(args.ground_truth, args.benchmark_range)
+        ground_truth = benchmark.gt_parser(args.ground_truth, args.benchmark_hard)
         if args.method=='all':
             methods = {
                     'Edge':SCD,
