@@ -49,6 +49,8 @@ class benchmark_plot_all(object):
             color = colors[c]
             score, name = result
             precision, recall, threshold = precision_recall_curve(self.truth, score)
+            ax.xlim((0,1))
+            ax.ylim((0,1))
             ax.step(recall, precision, color=color)
 
             ax.text(0.85, 0.95-c*0.05, str(name), fontsize=10, color=color)
@@ -79,6 +81,8 @@ class benchmark(object):
         print('Average Precision: %.2f'%self.ap)
         if plot:
             fig, ax = plt.subplots(dpi=100)
+            ax.xlim((0,1))
+            ax.ylim((0,1))
             ax.step(self.recall, self.precision, color='r', alpha=0.8)
             ax.fill_between(self.recall, self.precision, alpha=0.15, color='g')
             ax.set_xlabel('Recall')
