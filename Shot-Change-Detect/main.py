@@ -44,7 +44,15 @@ if __name__ == '__main__':
     else:
         ground_truth = benchmark.gt_parser(args.ground_truth, args.benchmark_range)
         if args.method=='all':
-            methods = {'Edge':SCD, 'HSV':detector.ContentBased(directory = args.path, img_type=args.read_type, scale=args.scale), 'RGB':detector.RGBBased(directory = args.path, img_type=args.read_type, scale=args.scale)}
+            methods = {
+                    'Edge':SCD,
+                    'HSV':detector.ContentBased(directory = args.path, img_type=args.read_type, scale=args.scale),
+                    'RGB':detector.RGBBased(directory = args.path, img_type=args.read_type, scale=args.scale),
+                    'HSVL2':detector.HSV2(directory = args.path, img_type=args.read_type, scale=args.scale),
+                    'HSVL1':detector.HSV2(directory = args.path, img_type=args.read_type, scale=args.scale),
+                    'RGBL1':detector.RGB1(directory = args.path, img_type=args.read_type, scale=args.scale),
+                    'RGBL2':detector.RGB2(directory = args.path, img_type=args.read_type, scale=args.scale),
+                    }
             benchmarker = benchmark.benchmark_plot_all(methods, ground_truth, args.min_length, SCD.get_frame_num())
             benchmarker.run()
         else:

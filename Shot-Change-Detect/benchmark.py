@@ -36,15 +36,14 @@ class benchmark_plot_all(object):
         import matplotlib.pyplot as plt
         import seaborn as sns
         sns.set_style('whitegrid')
-        self.scores = [ (m, self.methods[m].get_score()) for m in self.methods ]
+        self.scores = [ (self.methods[m].get_score(), m) for m in self.methods ]
         fig, ax = plt.subplots(dpi=100)
         colors = np.random.choice(256**3, len(self.scores))
         for c, result in enumerate(self.scores):
             color = '#{0:06X}'.format(colors[c])
-            name, score = result
+            score, name = result
             precision, recall, threshold = precision_recall_curve(self.truth, score)
-            ax.step(recall, precision, color=color, alpha=0.8)
-            ax.fill_between(recall, precision, alpha=0.05, color=color)
+            ax.step(recall, precision, color=color)
             ax.text(1.01, 0.95-c*0.1, str(name), fontsize=12, color=color)
         ax.set_xlabel('Recall')
         ax.set_ylabel('Precision')

@@ -208,6 +208,18 @@ class ContentBased(BaseDetector):
             if i in temp:
                 cv2.imwrite(output+'/'+'keyframe_%d_%d.jpg'%(temp[i], i), f)
 
+class HSV1(ContentBased):
+    def __init__(self, directory, bin_shape=(8,4,4), img_type='video', scale=None):
+        super(HSV2, self).__init__(directory, bin_shape, img_type, scale)
+    def _dist(self, x, y):
+        return np.mean(np.abs(x-y))
+
+class HSV2(ContentBased):
+    def __init__(self, directory, bin_shape=(8,4,4), img_type='video', scale=None):
+        super(HSV2, self).__init__(directory, bin_shape, img_type, scale)
+    def _dist(self, x, y):
+        return np.mean(np.square(x-y))
+
 class RGBBased(ContentBased):
     def __init__(self, directory, bin_shape=(4,8,7), img_type='video', scale=None):
         super(RGBBased, self).__init__(directory, bin_shape, img_type, scale)
@@ -249,3 +261,14 @@ class RGBBased(ContentBased):
         self._Diff[0] = 0 ## first frame -> no shot change
         thread_queue = []
         thread_results = dict()
+
+class RGB1(RGBBased):
+    def __init__(self, directory, bin_shape=(4,8,7), img_type='video', scale=None):
+        super(RGB1, self).__init__(directory, bin_shape, img_type, scale)
+    def _dist(self, x, y):
+        return np.mean(np.abs(x-y))
+class RGB2(RGBBased):
+    def __init__(self, directory, bin_shape=(4,8,7), img_type='video', scale=None):
+        super(RGB2, self).__init__(directory, bin_shape, img_type, scale)
+    def _dist(self, x, y):
+        return np.mean(np.square(x-y))
