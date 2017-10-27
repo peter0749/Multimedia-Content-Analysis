@@ -68,6 +68,18 @@ python main.py YOUR_VIDEO_FILE --keyframe_out FOO
 
 會在畫面上輸出 shot change 所對應的 frame 編號 (0-based)，並且偵測影片中的 key frames，將 key frames 輸出到 FOO 的路徑底下。
 
+```
+python main.py VIDEO --benchmark --ground_truth YOUR_GROUND_TRUTH --method METHOD
+```
+
+其中，`METHOD` 可以是：
+
+`HSV`、`RGB`、`Edge`、`all`
+
+其中之一，會畫出對應的 PR Curve。
+
+若使用 `all`，則畫出每種方法的 PR Curve 在同一張圖上，方便比較不同方法的效能。
+
 **(Optional)**
 
 ```
