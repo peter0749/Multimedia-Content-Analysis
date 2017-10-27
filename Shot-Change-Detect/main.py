@@ -5,17 +5,17 @@ import benchmark
 
 parser = argparse.ArgumentParser(description='Simple Shot Change Detection using Python+OpenCV')
 parser.add_argument('path', metavar='file_path', type=str,
-                    help='Path to the raw frames')
+                    help='Path to a video file / directory of raw frames')
 parser.add_argument('--method', type=str, default='HSV', required=False,
         help='Method: Edge/HSV/RGB (default: HSV)')
 parser.add_argument('--threshold', type=float, default=0.2, required=False,
         help='Threshold of shot change (range: [0,1) )')
 parser.add_argument('--min_length', type=int, default=12, required=False,
-                    help='Minimum frame length of one scene.')
+                    help='Minimum frame length of one shot')
 parser.add_argument('--read_type', type=str, default='video', required=False,
-        help='Read from raw frames (from directory) or a video file. (default: video)')
+        help='Read from raw frames (from directory) or a video file [video/dir] (default: video)')
 parser.add_argument('--ground_truth', type=str, default='', required=False,
-        help='Path to ground truth')
+        help='Path to ground truth data')
 parser.add_argument('--keyframe_out', type=str, default='', required=False,
         help='Path to generated keyframes')
 parser.add_argument('--keyframe_threshold', type=float, default=0.25, required=False,
@@ -23,7 +23,7 @@ parser.add_argument('--keyframe_threshold', type=float, default=0.25, required=F
 parser.add_argument('--scale', type=float, default=None, required=False,
         help='Subsampling')
 parser.add_argument('--benchmark', action='store_true', default=False,
-                    help='')
+                    help='Do benchmark. If --method is set to \'all\' then run a full benchmark to compare between different methods.')
 parser.add_argument('--benchmark_hard', action='store_true', default=False,
                     help='')
 
