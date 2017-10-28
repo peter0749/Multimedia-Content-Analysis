@@ -129,6 +129,7 @@ python main.py YOUR_VIDEO_FILE --scale YOUR_RATIO
 	- `HSV1`、`RGB1`使用 L1-Distance
 	- `HSV2`、`RGB2`使用 L2-Distance
 	- `ContentBased`、`RGBBased`使用 `1 - Histogram intersection`
+4. **(optional)** 輸出結果時，可以限制一個 shot 的最小長度，使結果更為合理。
 
 ### Key Frame Selection 實作
 
