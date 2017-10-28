@@ -47,6 +47,7 @@
 For Mac :
 
 - Install Python : `brew install python`
+- Install pip : `easy_install pip`
 - Install pip packages : `pip install -r requirements.txt`
 
 #### 如何執行程式
