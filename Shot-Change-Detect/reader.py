@@ -44,6 +44,7 @@ class readDir:
         self.lim=lim
         self.frame_n = 0
         self.frameList = os.listdir(directory)
+        self.frameList = [s for s in self.frameList if ('.jpg' in s or '.bmp' in s or '.png' in s)]
         self.frameList.sort()
         test = cv2.imread(self.directory+'/'+self.frameList[0], cv2.IMREAD_COLOR)
         if not scale is None:
