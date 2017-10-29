@@ -39,6 +39,7 @@ class readVideo:
 class readDir:
     def __init__(self, directory, lim=None, scale=None):
         if not scale is None and type(scale)!=float: raise ValueError('please pass float')
+        self.scale = scale
         self.directory=directory
         self.lim=lim
         self.frame_n = 0
@@ -52,11 +53,13 @@ class readDir:
     def __iter__(self):
         return self
     def next(self):
-        if ((not self.lim is None) and self.frame_n>=self.lim) or self.frame_n>=len(self.frameList):
-            raise StopIteration
-        img = cv2.imread(self.directory+'/'+self.frameList[self.frame_n], cv2.IMREAD_COLOR)
-        if not self.scale is None:
-            img = cv2.resize(img, (0,0), fx=self.scale, fy=self.scale) ## subsampling
-        self.frame_n += 1
+        img = None
+        while img is None:
+            if ((not self.lim is None) and self.frame_n>=self.lim) or self.frame_n>=len(self.frameList):
+                raise StopIteration
+            img = cv2.imread(self.directory+'/'+self.frameList[self.frame_n], cv2.IMREAD_COLOR)
+            if not self.scale is None:
+                img = cv2.resize(img, (0,0), fx=self.scale, fy=self.scale) ## subsampling
+            self.frame_n += 1
         return img
 
