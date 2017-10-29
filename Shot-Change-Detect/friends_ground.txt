@@ -1,0 +1,33 @@
+Shot boundary (in frame)
+Each row denotes a shot change 
+(shot changes in this sequences include cuts and dissolves)
+
+68
+82
+86~88
+126
+147
+179
+209
+243
+279
+306
+336
+375
+398
+427
+462
+494
+528
+564
+596
+625
+659
+692
+725
+755
+792
+820
+840
+864
+921
