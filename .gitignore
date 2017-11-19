@@ -1,1 +1,7 @@
 .DS_Store
+._DS_Store*
+*.bz2
+*.gz
+*.xz
+*.tar.*
+*.tar
