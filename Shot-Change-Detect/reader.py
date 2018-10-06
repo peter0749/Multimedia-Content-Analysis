@@ -25,6 +25,8 @@ class readVideo:
         self.vid.release()
     def __iter__(self):
         return self
+    def __next__(self):
+        return self.next()
     def next(self):
         if self.vid.isOpened() and (self.lim is None or self.frame_n<self.lim):
             s, f = self.vid.read()
@@ -53,6 +55,8 @@ class readDir:
         del test
     def __iter__(self):
         return self
+    def __next__(self):
+        return self.next()
     def next(self):
         img = None
         while img is None:

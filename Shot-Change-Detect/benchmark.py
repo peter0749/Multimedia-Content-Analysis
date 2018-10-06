@@ -12,7 +12,7 @@ def gt_parser(path, ac_point=False):
                     if ac_point:
                         ds = [int(cuts[0]), int(cuts[1])]
                     else:
-                        ds = range(int(cuts[0]), int(cuts[1])+1)
+                        ds = list(range(int(cuts[0]), int(cuts[1])+1))
                     gt.extend(ds)
                 else:
                     d = int(cuts[0])
@@ -42,7 +42,7 @@ class benchmark_plot_all(object):
         self.scores = [ (self.methods[m].get_score(), m) for m in self.methods ]
         fig, ax = plt.subplots(dpi=90)
         colors = []
-        for i in xrange(len(self.scores)):
+        for i in range(len(self.scores)):
             r,g,b = colorsys.hsv_to_rgb(i/float(len(self.scores)),1,1)
             colors.append((r,g,b))
         for c, result in enumerate(self.scores):
