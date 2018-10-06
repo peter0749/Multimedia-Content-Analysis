@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import cv2
 import reader
@@ -88,6 +89,8 @@ class EdgeBased(BaseDetector):
         import threading
         if self.shot is None: raise Exception('Call run() first!')
         if type(output) != str: raise ValueError('Please pass a string!')
+        if not os.path.exists(output):
+            os.makedirs(output)
         temp = dict()
         def select(leftf, rightf, cut_n):
             mid = (leftf+rightf)//2
@@ -179,6 +182,8 @@ class ContentBased(BaseDetector):
         import threading
         if self.shot is None: raise Exception('Call run() first!')
         if type(output) != str: raise ValueError('Please pass a string!')
+        if not os.path.exists(output):
+            os.makedirs(output)
         temp = dict()
         def select(leftf, rightf, cut_n):
             mid = (leftf+rightf)//2
