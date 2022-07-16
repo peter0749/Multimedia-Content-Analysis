@@ -14,7 +14,7 @@ class readVideo:
             s, f = test.read()
             if not s: raise Exception('Invalid video format!')
             if not scale is None:
-                f = cv2.resize(f, (0,0), fx=scale, fy=scale) ## subsampling
+                f = cv2.resize(f, None, fx=scale, fy=scale, interpolation=cv2.INTER_LINEAR) ## subsampling
             self.shape=f.shape
         test.release()
         del test
@@ -34,7 +34,7 @@ class readVideo:
                 raise StopIteration
             self.frame_n += 1
             if not self.scale is None:
-                f = cv2.resize(f, (0,0), fx=self.scale, fy=self.scale) ## subsampling
+                f = cv2.resize(f, None, fx=self.scale, fy=self.scale, interpolation=cv2.INTER_LINEAR) ## subsampling
             return f
         raise StopIteration
 
@@ -50,7 +50,7 @@ class readDir:
         self.frameList.sort()
         test = cv2.imread(self.directory+'/'+self.frameList[0], cv2.IMREAD_COLOR)
         if not scale is None:
-            test = cv2.resize(test, (0,0), fx=scale, fy=scale) ## subsampling
+            test = cv2.resize(test, None, fx=scale, fy=scale, interpolation=cv2.INTER_LINEAR) ## subsampling
         self.shape = test.shape
         del test
     def __iter__(self):
@@ -64,7 +64,7 @@ class readDir:
                 raise StopIteration
             img = cv2.imread(self.directory+'/'+self.frameList[self.frame_n], cv2.IMREAD_COLOR)
             if not self.scale is None:
-                img = cv2.resize(img, (0,0), fx=self.scale, fy=self.scale) ## subsampling
+                img = cv2.resize(img, None, fx=self.scale, fy=self.scale, interpolation=cv2.INTER_LINEAR) ## subsampling
             self.frame_n += 1
         return img
 
