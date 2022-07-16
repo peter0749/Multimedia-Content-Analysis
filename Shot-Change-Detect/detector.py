@@ -2,8 +2,6 @@ import os
 import numpy as np
 import cv2
 import reader
-import multiprocessing
-from contextlib import closing
 from tqdm import tqdm
 
 class BaseDetector(object):
@@ -27,7 +25,7 @@ class BaseDetector(object):
     def get_score(self):
         return self._Diff
     def get_frame_num(self):
-        pass
+        return len(self._Diff)
     def _pre_process(self):
         pass
     def _post_process(self):
@@ -58,21 +56,12 @@ class EdgeBased(BaseDetector):
         edged = cv2.dilate(cv2.Canny(v,self._canny_th1,self._canny_th2), self._kernel, iterations=1)
         return edged
     def _pre_process(self):
-        with closing(multiprocessing.Pool()) as pool:
-            thread_queue = []
-            for v in self._videoReader(self._path, scale=self._scale):
-                thread_queue.append(pool.apply_async(proxy_method, args=(self, "pre", v)))
-            for th in tqdm(thread_queue):
-                self._Edge.append(th.get())
-            thread_queue = []
-            for i in range(1, len(self._Edge)):
-                thread_queue.append(pool.apply_async(proxy_method, args=(self, "_get_ECR", self._Edge[i-1], self._Edge[i])))
-            for th in tqdm(thread_queue):
-                self._Diff.append(th.get())
-    def _post_process(self):
-        pass
-    def get_frame_num(self):
-        return len(self._Edge)
+        self._Edge = []
+        self._Diff = [0.]
+        for v in tqdm(self._videoReader(self._path, scale=self._scale)):
+            self._Edge.append(self.pre(v))
+            if len(self._Edge) >= 2:
+                self._Diff.append(self._get_ECR(self._Edge[-2], self._Edge[-1]))
     def run(self, threshold=0.8, min_length=12):
         self.shot = [] ## a list
         for i, v in enumerate(self._Diff):
@@ -103,15 +92,12 @@ class EdgeBased(BaseDetector):
             os.makedirs(output)
         
         keyframe_index = dict()
-        with closing(multiprocessing.Pool()) as pool:
-            thread_queue = []
-            leftf = 0 ## [leftf, rightf)
-            for cut_n, cut in enumerate(self.shot):
-                rightf = cut
-                thread_queue.append(pool.apply_async(proxy_method, args=(self, "select", leftf, rightf, cut_n, threshold)))
-                leftf = rightf
-            for th in tqdm(thread_queue):
-                keyframe_index.update(th.get())
+        leftf = 0 ## [leftf, rightf)
+        for cut_n, cut in enumerate(self.shot):
+            rightf = cut
+            temp = self.select(leftf, rightf, cut_n, threshold)
+            keyframe_index.update(temp)
+            leftf = rightf
         for i,f in tqdm(enumerate(self._videoReader(self._path))):
             if i in keyframe_index:
                 cv2.imwrite(output+'/'+'keyframe_%d_%d.jpg'%(keyframe_index[i], i), f)
@@ -119,12 +105,10 @@ class EdgeBased(BaseDetector):
 class ContentBased(BaseDetector):
     def __init__(self, directory, bin_shape=(8,4,4), img_type='video', scale=None):
         super(ContentBased, self).__init__(directory, img_type, scale)
-        self._Diff = []
+        self._Diff = [0.0]
         self._hsvHist = []
         self._bin_shape = bin_shape
         self._pre_process()
-    def get_frame_num(self):
-        return len(self._hsvHist)
     def _dist(self, x, y):
         return np.clip(1. - np.sum(np.minimum(x, y)), 0, 1)
     def conv(self, v, pixn):
@@ -133,25 +117,17 @@ class ContentBased(BaseDetector):
         currHist /= float(pixn) ## normalize
         return currHist
     def _pre_process(self):
-        thread_queue = []
         """
         Use the method from PPT p.5
         """
-        pixn = self._frame_shape[0]*self._frame_shape[1]
+        self._Diff = [0.0]
+        self._hsvHist = []
+        pixn = int(self._frame_shape[0]*self._frame_shape[1])
         
-        with closing(multiprocessing.Pool()) as pool:
-            for tid, v in enumerate(self._videoReader(self._path,scale=self._scale)):
-                thread_queue.append(pool.apply_async(proxy_method, args=(self, "conv", v, pixn)))
-            for th in tqdm(thread_queue):
-                self._hsvHist.append(th.get())
-            thread_queue = []
-            lastHist = np.zeros(self._bin_shape) ## h, s, v, 1D
-            for tid, currHist in enumerate(self._hsvHist):
-                thread_queue.append(pool.apply_async(proxy_method, args=(self, "_dist", np.copy(lastHist), np.copy(currHist))))
-                lastHist = np.copy(currHist)
-            for th in tqdm(thread_queue):
-                self._Diff.append(th.get())
-        self._Diff[0] = 0 ## first frame -> no shot change
+        for v in tqdm(self._videoReader(self._path,scale=self._scale)):
+            self._hsvHist.append(self.conv(v, pixn))
+            if len(self._hsvHist) >= 2:
+                self._Diff.append(self._dist(self._hsvHist[-2], self._hsvHist[-1]))
     def _post_process(self):
         pass
     def run(self, threshold=0.8, min_length=12):
@@ -184,15 +160,12 @@ class ContentBased(BaseDetector):
             os.makedirs(output)
         
         keyframe_dict = dict()
-        with closing(multiprocessing.Pool()) as pool:
-            thread_queue = []
-            leftf = 0 ## [leftf, rightf)
-            for cut_n, cut in enumerate(self.shot):
-                rightf = cut
-                thread_queue.append(pool.apply_async(proxy_method, args=(self, "select", leftf, rightf, cut_n, threshold)))
-                leftf = rightf
-            for th in tqdm(thread_queue):
-                keyframe_dict.update(th.get())
+        leftf = 0 ## [leftf, rightf)
+        for cut_n, cut in enumerate(self.shot):
+            rightf = cut
+            temp = self.select(leftf, rightf, cut_n, threshold)
+            keyframe_dict.update(temp)
+            leftf = rightf
         
         for i,f in tqdm(enumerate(self._videoReader(self._path))):
             if i in keyframe_dict:
@@ -221,21 +194,14 @@ class RGBBased(ContentBased):
         """
         Use the method from PPT p.5
         """
-        pixn = self._frame_shape[0]*self._frame_shape[1]
-        with closing(multiprocessing.Pool()) as pool:
-            thread_queue = []
-            for tid, v in enumerate(self._videoReader(self._path,scale=self._scale)):
-                thread_queue.append(pool.apply_async(proxy_method, args=(self, "conv", v, pixn)))
-            for th in tqdm(thread_queue):
-                self._hsvHist.append(th.get())
-            thread_queue = []
-            lastHist = np.zeros(self._bin_shape) ## h, s, v, 1D
-            for currHist in self._hsvHist:
-                thread_queue.append(pool.apply_async(proxy_method, args=(self, "_dist", np.copy(lastHist), np.copy(currHist))))
-                lastHist = np.copy(currHist)
-            for th in tqdm(thread_queue):
-                self._Diff.append(th.get())
-        self._Diff[0] = 0 ## first frame -> no shot change
+        pixn = int(self._frame_shape[0]*self._frame_shape[1])
+        self._Diff = [0.0]
+        self._hsvHist = []
+        
+        for v in tqdm(self._videoReader(self._path,scale=self._scale)):
+            self._hsvHist.append(self.conv(v, pixn))
+            if len(self._hsvHist) >= 2:
+                self._Diff.append(self._dist(self._hsvHist[-2], self._hsvHist[-1]))
 
 class RGB1(RGBBased):
     def __init__(self, directory, bin_shape=(4,8,7), img_type='video', scale=None):
